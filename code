@@ -1,0 +1,540 @@
+#include <iostream>
+#include <string>
+#include <windows.h>
+#include <sstream>
+#include <algorithm>
+#include <ctime>
+#include <chrono>
+#include <fstream>
+using namespace std;
+
+HANDLE N = GetStdHandle(STD_OUTPUT_HANDLE);
+
+bool check_space(char s_1, char s_2)
+{
+
+	if (s_1 == s_2 && s_1 == ' ')
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+bool check_punctuation(char s_1, char s_2)
+{
+	if ((s_1 == s_2) && ((s_1 == '.') || (s_1 == ',') || (s_1 == ';') || (s_1 == ':') || (s_1 == '?') || (s_1 == '!') || (s_1 == '/') || (s_1 == '(') || (s_1 == ')') || (s_1 == '"')))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+}
+
+
+
+bool is_digits(const string &str)
+{
+	return str.find_first_not_of("0123456789") == string::npos;
+}
+bool is_letters(const string &str)
+{
+	return str.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == string::npos;
+}
+
+
+int *pre_kmp(string pattern)
+{
+	int size = pattern.size();
+	int *pi = new int[size];
+	pi[0] = 0;
+	int k = 0;
+	for (int i = 1; i < size; i++)
+	{
+		while (k > 0 && pattern[k] != pattern[i])
+		{
+			k = pi[k - 1];
+		}
+		if (pattern[k] == pattern[i])
+		{
+			k = k + 1;
+		}
+		pi[i] = k;
+	}
+
+	return pi;
+}
+
+void kmp(string text, string pattern)
+{
+	int* pi = pre_kmp(pattern);
+	int match = 0;
+	SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+	cout << "Индексы: ";
+	SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+	for (int current = 0; current < text.length(); current++)
+	{
+		while (match > 0 && pattern[match] != text[current])
+			match = pi[match - 1];
+
+		if (pattern[match] == text[current])
+			match = match + 1;
+
+		if (match == (pattern.length()))
+		{
+			cout << current - (pattern.length() - 1) << " ";
+			match = pi[match - 1];
+		}
+	}
+}
+
+void linear(string text, string pattern)
+{
+	int M_1 = pattern.length();
+	int N_1 = text.length();
+	SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+	cout << "Индексы: ";
+	SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+	for (int i = 0; i <= N_1 - M_1; i++) {
+		int j;
+
+		for (j = 0; j < M_1; j++)
+			if (text[i + j] != pattern[j])
+				break;
+
+		if (j == M_1) 
+			cout << i << " ";
+			
+	}
+}
+
+
+
+
+
+
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+
+
+	
+			int answer = 0;
+			string a;
+
+			SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+			cout << "Введите строку: ";
+			SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+			getline(cin, a);
+
+			bool filter_all = a.find_first_not_of(",.:;?!-()'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ") != string::npos;
+
+
+			bool l10 = 0;
+			stringstream b1(a);
+			string tmp1;
+			int num_words = 0;
+			while (b1 >> tmp1) {
+				num_words++;
+				if ((tmp1.size() >= 10) || (tmp1.size() < 1)) {
+					l10 = 1;
+				}
+			}
+
+
+			if ((l10 == 1) || (num_words < 1) || (num_words >= 50) || (filter_all == 1)) {
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_INTENSITY);
+				cout << "Ошибка." << endl;
+				cout << "Удостоверьтесь, что выполнены следующие условия: " << endl;
+				SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				cout << "1.Строка должна содержать 1-50 слов." << endl;
+				cout << "2.Слова в строке должны содержать 1-10 символов." << endl;
+				cout << "3.Предусмотрено использование только латинских букв." << endl;
+			}
+			while (answer != 6) {
+				SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "Выберите задание: " << endl;
+				cout << endl;
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+				cout << "1. Отредактировать строку. " << endl;
+				cout << "2. ";
+				SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				cout << "(Вариант 6) ";
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "Вывести на экран слова, содержащие: " << endl;
+				cout << "а)буквы" << endl;
+				cout << "б)цифры" << endl;
+				cout << "в)буквы и цифры" << endl;
+
+				cout << "3. ";
+				SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				cout << "(Вариант 4) ";
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "Заменить цифры на буквы латинского алфавита. " << endl;
+				cout << "4. Найти подстроку в строке. ";
+				SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				cout << "(линейный поиск и алгоритм КМП)" << endl;
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "5. ";
+				SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+				cout << "(*) ";
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "Работать со строкой из файла." << endl;
+				cout << "6. ";
+				SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cout << "Выход " << endl;
+				SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+				cin >> answer;
+				system("CLS");
+				switch (answer)
+				{
+				case (1): {
+
+					string a1;
+					string a2;
+					transform(a.begin(), a.end(), a.begin(), tolower);
+					a[0] = toupper(a[0]);
+					auto p1 = unique_copy(a.begin(), a.end(), back_inserter(a1), check_space);
+					auto p2 = unique_copy(a1.begin(), a1.end(), back_inserter(a2), check_punctuation);
+
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << "Отредактированная строка: ";
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+					cout << a2 + "." << endl;
+					cout << endl;
+					break;
+				}
+				case (2): {
+					string a1;
+					string a2;
+					transform(a.begin(), a.end(), a.begin(), tolower);
+					a[0] = toupper(a[0]);
+					auto p1 = unique_copy(a.begin(), a.end(), back_inserter(a1), check_space);
+					auto p2 = unique_copy(a1.begin(), a1.end(), back_inserter(a2), check_punctuation);
+
+					string let;
+					string num;
+					string let_num;
+					string si = a2;
+					istringstream ss1(si);
+
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << "Строка: ";
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+					cout << si + "." << endl;
+					while (ss1 >> si) {
+
+						if (is_digits(si) == 1) {
+							num += si;
+							num += " ";
+						}
+						if (is_letters(si) == 1) {
+							let += si;
+							let += " ";
+						}
+						if ((is_letters(si) == 0) && (is_digits(si) == 0)) {
+							let_num += si;
+							let_num += " ";
+						}
+					}
+
+					cout << "Слова, содержащие только буквы: " << let << endl;
+					cout << "Слова, содержащие только цифры: " << num << endl;
+					cout << "Слова, содержащие и буквы, и цифры: " << let_num << endl;
+					cout << endl;
+					break;
+				}
+				case (3): {
+					string a1;
+					string a2;
+					transform(a.begin(), a.end(), a.begin(), tolower);
+					a[0] = toupper(a[0]);
+					auto p1 = unique_copy(a.begin(), a.end(), back_inserter(a1), check_space);
+					auto p2 = unique_copy(a1.begin(), a1.end(), back_inserter(a2), check_punctuation);
+
+					string sw = a2;
+					replace(sw.begin(), sw.end(), '0', 'a');
+					replace(sw.begin(), sw.end(), '1', 'b');
+					replace(sw.begin(), sw.end(), '2', 'c');
+					replace(sw.begin(), sw.end(), '3', 'd');
+					replace(sw.begin(), sw.end(), '4', 'e');
+					replace(sw.begin(), sw.end(), '5', 'f');
+					replace(sw.begin(), sw.end(), '6', 'g');
+					replace(sw.begin(), sw.end(), '7', 'h');
+					replace(sw.begin(), sw.end(), '8', 'i');
+					replace(sw.begin(), sw.end(), '9', 'j');
+
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << "Отредактированная строка: ";
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+					cout << sw +"."<< endl;
+					cout << endl;
+					break;
+				}
+				case (4): {
+
+
+					string sub;
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << "Введите подстроку: ";
+					SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+					cin >> sub;
+					cout << endl;
+
+					//////////////////////////////////ЛИНЕЙНЫЙ ПОИСК
+					auto start3 = chrono::high_resolution_clock::now();
+					linear(a, sub);
+					cout << endl;
+					auto end3 = chrono::high_resolution_clock::now();
+					chrono::duration<float> duration3 = end3 - start3;
+					cout.setf(ios::fixed, ios::floatfield);
+					cout.precision(7);
+					cout << endl;
+					SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+					cout << "Время, потраченное на линейный поиск: ";
+					SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << duration3.count() << endl;
+					cout << endl;
+
+
+					////////////////////////////////// КМП
+					auto start2 = chrono::high_resolution_clock::now();
+					kmp(a, sub);
+					cout << endl;
+					auto end2 = chrono::high_resolution_clock::now();
+					chrono::duration<float> duration2 = end2 - start2;
+					cout.setf(ios::fixed, ios::floatfield);
+					cout.precision(7);
+					cout << endl;
+					SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+					cout << "Время, потраченное на алгоритм КМП: ";
+					SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					cout << duration2.count() << endl;
+					cout << endl;
+					break;
+
+				}
+				case (5): {
+					string f = ("tHe qUIck,,,,,   bRoWn        fOX juMPs         oVeR tHE    laZy dOg........    a2     120 36 6");
+					ofstream file;
+					file.open("sample.txt");
+
+					if (file.is_open()) {
+						cout << "Файл открыт!" << endl;
+						cout << endl;
+						file << f;
+						SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "Строка: ";
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << f << endl;
+						cout << endl;
+
+					}
+					else {
+						cout << "Ошибка при обработке файла.";
+					}
+
+					int answer_1 = 0;
+					file.close();
+
+					while (answer_1 != 5) {
+						SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "Выберите задание: " << endl;
+						cout << endl;
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+						cout << "1. Отредактировать строку. " << endl;
+						cout << "2. ";
+						SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+						cout << "(Вариант 6) ";
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "Вывести на экран слова, содержащие: " << endl;
+						cout << "а)буквы" << endl;
+						cout << "б)цифры" << endl;
+						cout << "в)буквы и цифры" << endl;
+
+						cout << "3. ";
+						SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+						cout << "(Вариант 4) ";
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "Заменить цифры на буквы латинского алфавита. " << endl;
+						cout << "4. Найти подстроку в строке. ";
+						SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+						cout << "(линейный поиск и алгоритм КМП)" << endl;
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "5. ";
+						SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cout << "<——— " << endl;
+						SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+						cin >> answer_1;
+						system("CLS");
+						switch (answer_1)
+						{
+						case (1): {
+
+							string f1;
+							string f2;
+							transform(f.begin(), f.end(), f.begin(), tolower);
+							f[0] = toupper(f[0]);
+							auto p1 = unique_copy(f.begin(), f.end(), back_inserter(f1), check_space);
+							auto p2 = unique_copy(f1.begin(), f1.end(), back_inserter(f2), check_punctuation);
+
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << "Отредактированная строка: " << endl;
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+							cout << f2 + "." << endl;
+							cout << endl;
+							break;
+						}
+						case (2): {
+							string f1;
+							string f2;
+							transform(f.begin(), f.end(), f.begin(), tolower);
+							f[0] = toupper(f[0]);
+							auto p1 = unique_copy(f.begin(), f.end(), back_inserter(f1), check_space);
+							auto p2 = unique_copy(f1.begin(), f1.end(), back_inserter(f2), check_punctuation);
+
+							cout << endl;
+							string let;
+							string num;
+							string let_num;
+							string si = f2;
+							istringstream ss(si);
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << "Строка: ";
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+							cout << si + "." << endl;
+							while (ss >> si) {
+
+								if (is_digits(si) == 1) {
+									num += si;
+									num += " ";
+								}
+								if (is_letters(si) == 1) {
+									let += si;
+									let += " ";
+								}
+								if ((is_letters(si) == 0) && (is_digits(si) == 0)) {
+									let_num += si;
+									let_num += " ";
+								}
+							}
+
+							cout << "Слова, содержащие только буквы: " << let << endl;
+							cout << "Слова, содержащие только цифры: " << num << endl;
+							cout << "Слова, содержащие и буквы, и цифры: " << let_num << endl;
+							cout << endl;
+							break;
+						}
+						case (3): {
+
+							string f1;
+							string f2;
+							transform(f.begin(), f.end(), f.begin(), tolower);
+							f[0] = toupper(f[0]);
+							auto p1 = unique_copy(f.begin(), f.end(), back_inserter(f1), check_space);
+							auto p2 = unique_copy(f1.begin(), f1.end(), back_inserter(f2), check_punctuation);
+
+
+							string sw = f2;
+							replace(sw.begin(), sw.end(), '0', 'a');
+							replace(sw.begin(), sw.end(), '1', 'b');
+							replace(sw.begin(), sw.end(), '2', 'c');
+							replace(sw.begin(), sw.end(), '3', 'd');
+							replace(sw.begin(), sw.end(), '4', 'e');
+							replace(sw.begin(), sw.end(), '5', 'f');
+							replace(sw.begin(), sw.end(), '6', 'g');
+							replace(sw.begin(), sw.end(), '7', 'h');
+							replace(sw.begin(), sw.end(), '8', 'i');
+							replace(sw.begin(), sw.end(), '9', 'j');
+
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << "Отредактированная строка: ";
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+							cout << sw + "." << endl;
+							cout << endl;
+							break;
+						}
+						case (4): {
+
+							string f1;
+							string f2;
+							transform(f.begin(), f.end(), f.begin(), tolower);
+							f[0] = toupper(f[0]);
+							auto p11 = unique_copy(f.begin(), f.end(), back_inserter(f1), check_space);
+							auto p22 = unique_copy(f1.begin(), f1.end(), back_inserter(f2), check_punctuation);
+
+
+							string sub;
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << "Введите подстроку: ";
+							SetConsoleTextAttribute(N, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+							cin >> sub;
+							cout << endl;
+
+							//////////////////////////////////ЛИНЕЙНЫЙ ПОИСК
+							auto start3 = chrono::high_resolution_clock::now();
+							linear(f2, sub);
+							cout << endl;
+							auto end3 = chrono::high_resolution_clock::now();
+							chrono::duration<float> duration3 = end3 - start3;
+							cout.setf(ios::fixed, ios::floatfield);
+							cout.precision(7);
+							cout << endl;
+							SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+							cout << "Время, потраченное на линейный поиск: ";
+							SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << duration3.count() << endl;
+							cout << endl;
+
+
+							////////////////////////////////// КМП
+							auto start2 = chrono::high_resolution_clock::now();
+							kmp(f2, sub);
+							cout << endl;
+							auto end2 = chrono::high_resolution_clock::now();
+							chrono::duration<float> duration2 = end2 - start2;
+							cout.setf(ios::fixed, ios::floatfield);
+							cout.precision(7);
+							cout << endl;
+							SetConsoleTextAttribute(N, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+							cout << "Время, потраченное на алгоритм КМП: ";
+							SetConsoleTextAttribute(N, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							cout << duration2.count() << endl;
+							cout << endl;
+							break;
+
+						}
+
+
+						}
+					}
+				
+
+
+
+				
+
+					break;
+				}
+				 break;
+
+				}
+
+			}
+		
+		
+	return 0;
+}
+
+
